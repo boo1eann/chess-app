@@ -1,53 +1,103 @@
 import { useState } from "react";
 import {
+  ActivityIndicator,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
+import { Controller, useForm } from "react-hook-form";
+
+type FormValues = {
+  email: string;
+  username: string;
+  password: string;
+};
 
 export function RegisterScreen() {
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const { control, handleSubmit } = useForm<FormValues>({
+    defaultValues: { email: "", username: "", password: "" },
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const onSubmit = () => {
-    console.log({ email, username, password });
+  const onSubmit = async (values: FormValues) => {
+    setSubmitting(true);
+    setError(null);
+    try {
+      console.log(values);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    } catch (err: any) {
+      setError(err.message ?? "Registration failed");
+      setSubmitting(false);
+    }
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign up</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
+      <Controller
+        control={control}
+        name="email"
+        render={(props) => (
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={props.field.value}
+            onChangeText={props.field.onChange}
+            onBlur={props.field.onBlur}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+        )}
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-        autoCapitalize="none"
+      <Controller
+        control={control}
+        name="username"
+        render={(props) => (
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            value={props.field.value}
+            onChangeText={props.field.onChange}
+            onBlur={props.field.onBlur}
+            autoCapitalize="none"
+          />
+        )}
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        autoCapitalize="none"
+      <Controller
+        control={control}
+        name="password"
+        render={(props) => (
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            value={props.field.value}
+            onChangeText={props.field.onChange}
+            onBlur={props.field.onBlur}
+            secureTextEntry
+            autoCapitalize="none"
+          />
+        )}
       />
 
-      <TouchableOpacity style={styles.button} onPress={onSubmit}>
-        <Text style={styles.buttonText}>Create account</Text>
-      </TouchableOpacity>
+      {error && <Text style={styles.error}>{error}</Text>}
+
+      <Pressable
+        style={[styles.button, submitting && styles.buttonDisabled]}
+        onPress={handleSubmit(onSubmit)}
+        disabled={submitting}
+      >
+        {submitting ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.buttonText}>Create account</Text>
+        )}
+      </Pressable>
     </View>
   );
 }
@@ -84,5 +134,14 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "600",
     fontSize: 16,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  error: {
+    color: "#d33",
+    fontSize: 14,
+    marginVertical: 12,
+    textAlign: "center",
   },
 });
