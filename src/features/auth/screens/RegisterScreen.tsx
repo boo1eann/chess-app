@@ -8,6 +8,8 @@ import {
   View,
 } from "react-native";
 import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { registerSchema } from "../validators/auth.validators";
 
 type FormValues = {
   email: string;
@@ -16,7 +18,13 @@ type FormValues = {
 };
 
 export function RegisterScreen() {
-  const { control, handleSubmit } = useForm<FormValues>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
+    mode: "onTouched",
+    resolver: zodResolver(registerSchema),
     defaultValues: { email: "", username: "", password: "" },
   });
   const [submitting, setSubmitting] = useState(false);
@@ -53,6 +61,9 @@ export function RegisterScreen() {
           />
         )}
       />
+      {errors.email && (
+        <Text style={styles.fieldError}>{errors.email.message}</Text>
+      )}
 
       <Controller
         control={control}
@@ -68,6 +79,9 @@ export function RegisterScreen() {
           />
         )}
       />
+      {errors.username && (
+        <Text style={styles.fieldError}>{errors.username.message}</Text>
+      )}
 
       <Controller
         control={control}
@@ -84,6 +98,9 @@ export function RegisterScreen() {
           />
         )}
       />
+      {errors.password && (
+        <Text style={styles.fieldError}>{errors.password.message}</Text>
+      )}
 
       {error && <Text style={styles.error}>{error}</Text>}
 
@@ -143,5 +160,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginVertical: 12,
     textAlign: "center",
+  },
+  fieldError: {
+    color: "#d33",
+    fontSize: 12,
+    marginBottom: 8,
   },
 });

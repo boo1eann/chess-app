@@ -19,7 +19,7 @@ export const loginSchema = z.object({
   deviceType: z.enum(["mobile", "tablet", "desktop"]).optional(),
 });
 
-export const RegisterSchema = z.object({
+export const registerSchema = z.object({
   username: usernameSchema,
   email: emailSchema,
   password: passwordSchema,
@@ -27,5 +27,5 @@ export const RegisterSchema = z.object({
   deviceType: z.enum(["mobile", "tablet", "desktop"]).optional(),
 });
 
-export type RegisterFormValues = z.infer<typeof RegisterSchema>;
+export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type LoginFormValues = z.infer<typeof loginSchema>;
