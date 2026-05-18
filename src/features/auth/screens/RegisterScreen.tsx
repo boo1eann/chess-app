@@ -15,11 +15,14 @@ import {
 } from "../validators/auth.validators";
 import { authApi } from "@/shared/api/auth.api";
 import { isApiErrorResponse } from "@/shared/types/api-error";
+import { secureStorage } from "@/shared/storage/secure-storage";
+import { useAuthStore } from "../store/auth.store";
 
 type FormValues = {
   email: string;
   username: string;
   password: string;
+  passwordConfirm: string;
 };
 
 export function RegisterScreen() {
@@ -31,7 +34,12 @@ export function RegisterScreen() {
   } = useForm<FormValues>({
     mode: "onTouched",
     resolver: zodResolver(registerSchema),
-    defaultValues: { email: "", username: "", password: "" },
+    defaultValues: {
+      email: "",
+      username: "",
+      password: "",
+      passwordConfirm: "",
+    },
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setLocalError] = useState<string | null>(null);
@@ -40,13 +48,19 @@ export function RegisterScreen() {
     setSubmitting(true);
     setLocalError(null);
     try {
-      const result = await authApi.register(values);
-      console.log("Got tokens: ", result);
+      const { data } = await authApi.register(values);
+      await secureStorage.setRefreshToken(data.tokens.refreshToken);
+      useAuthStore.getState().setSession({
+        user: data.user,
+        accessToken: data.tokens.accessToken,
+      });
     } catch (err: any) {
+      console.log(err);
       const data = err?.response?.data;
 
       if (!err?.response) {
         setLocalError("Network error");
+        setSubmitting(false);
         return;
       }
 
@@ -135,6 +149,25 @@ export function RegisterScreen() {
       />
       {errors.password && (
         <Text style={styles.fieldError}>{errors.password.message}</Text>
+      )}
+
+      <Controller
+        control={control}
+        name="passwordConfirm"
+        render={(props) => (
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            value={props.field.value}
+            onChangeText={props.field.onChange}
+            onBlur={props.field.onBlur}
+            secureTextEntry
+            autoCapitalize="none"
+          />
+        )}
+      />
+      {errors.passwordConfirm && (
+        <Text style={styles.fieldError}>{errors.passwordConfirm.message}</Text>
       )}
 
       {error && <Text style={styles.error}>{error}</Text>}

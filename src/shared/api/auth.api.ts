@@ -13,8 +13,14 @@ interface RegisterPayload {
 }
 
 interface AuthResponse {
-  user: User;
-  tokens: { accessToken: string; refreshToken: string };
+  success: boolean;
+  data: {
+    user: User;
+    tokens: {
+      accessToken: string;
+      refreshToken: string;
+    };
+  };
 }
 
 interface RefreshResponse {

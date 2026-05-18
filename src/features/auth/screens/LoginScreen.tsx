@@ -1,5 +1,4 @@
-import { Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Text } from "react-native";
 
 export function LoginScreen() {
   return <Text>Sign in</Text>;

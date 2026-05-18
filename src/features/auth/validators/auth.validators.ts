@@ -19,13 +19,19 @@ export const loginSchema = z.object({
   deviceType: z.enum(["mobile", "tablet", "desktop"]).optional(),
 });
 
-export const registerSchema = z.object({
-  username: usernameSchema,
-  email: emailSchema,
-  password: passwordSchema,
-  deviceName: z.string().min(1).max(255).optional(),
-  deviceType: z.enum(["mobile", "tablet", "desktop"]).optional(),
-});
+export const registerSchema = z
+  .object({
+    username: usernameSchema,
+    email: emailSchema,
+    password: passwordSchema,
+    passwordConfirm: z.string(),
+    deviceName: z.string().min(1).max(255).optional(),
+    deviceType: z.enum(["mobile", "tablet", "desktop"]).optional(),
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    error: "Password do not match",
+    path: ["passwordConfirm"],
+  });
 
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type LoginFormValues = z.infer<typeof loginSchema>;
