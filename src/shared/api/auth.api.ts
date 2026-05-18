@@ -9,7 +9,7 @@ interface LoginPayload {
 interface RegisterPayload {
   email: string;
   username: string;
-  confirmPassword: string;
+  password: string;
 }
 
 interface AuthResponse {

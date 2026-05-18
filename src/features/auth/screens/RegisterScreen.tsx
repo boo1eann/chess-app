@@ -9,7 +9,12 @@ import {
 } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registerSchema } from "../validators/auth.validators";
+import {
+  RegisterFormValues,
+  registerSchema,
+} from "../validators/auth.validators";
+import { authApi } from "@/shared/api/auth.api";
+import { isApiErrorResponse } from "@/shared/types/api-error";
 
 type FormValues = {
   email: string;
@@ -22,22 +27,52 @@ export function RegisterScreen() {
     control,
     handleSubmit,
     formState: { errors },
+    setError: useFormSetError,
   } = useForm<FormValues>({
     mode: "onTouched",
     resolver: zodResolver(registerSchema),
     defaultValues: { email: "", username: "", password: "" },
   });
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setLocalError] = useState<string | null>(null);
 
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: RegisterFormValues) => {
     setSubmitting(true);
-    setError(null);
+    setLocalError(null);
     try {
-      console.log(values);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const result = await authApi.register(values);
+      console.log("Got tokens: ", result);
     } catch (err: any) {
-      setError(err.message ?? "Registration failed");
+      const data = err?.response?.data;
+
+      if (!err?.response) {
+        setLocalError("Network error");
+        return;
+      }
+
+      if (isApiErrorResponse(data)) {
+        const { error } = data;
+
+        if (error.errors?.length) {
+          for (const fieldErr of error.errors) {
+            useFormSetError(
+              fieldErr.field as keyof Omit<
+                RegisterFormValues,
+                "deviceName" | "deviceType"
+              >,
+              {
+                type: "server",
+                message: fieldErr.message,
+              },
+            );
+          }
+        } else {
+          setLocalError(
+            error.userAction ?? error.message ?? "Registration failed",
+          );
+        }
+      }
+
       setSubmitting(false);
     }
   };
