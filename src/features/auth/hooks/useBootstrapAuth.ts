@@ -22,11 +22,10 @@ export function useBootstrapAuth(): void {
           return;
         }
 
-        const { accessToken, refreshToken: newRefresh } =
-          await authApi.refresh(refreshToken);
-        await secureStorage.setRefreshToken(newRefresh);
+        const { data } = await authApi.refresh(refreshToken);
+        await secureStorage.setRefreshToken(data.refreshToken);
 
-        const payload = jwtDecode<AccessPayload>(accessToken);
+        const payload = jwtDecode<AccessPayload>(data.accessToken);
 
         if (cancelled) return;
 
@@ -36,7 +35,7 @@ export function useBootstrapAuth(): void {
             username: payload.username,
             email: "",
           },
-          accessToken,
+          accessToken: data.accessToken,
         });
       } catch (err) {
         if (cancelled) return;

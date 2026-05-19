@@ -24,8 +24,11 @@ interface AuthResponse {
 }
 
 interface RefreshResponse {
-  accessToken: string;
-  refreshToken: string;
+  success: boolean;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+  };
 }
 
 export const authApi = {
