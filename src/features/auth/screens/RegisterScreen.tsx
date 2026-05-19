@@ -60,7 +60,6 @@ export function RegisterScreen() {
         accessToken: data.tokens.accessToken,
       });
     } catch (err: any) {
-      console.log(err);
       const data = err?.response?.data;
 
       if (!err?.response) {
