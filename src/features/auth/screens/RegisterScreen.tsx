@@ -1,11 +1,11 @@
 import { useState } from "react";
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
-  View,
 } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +17,9 @@ import { authApi } from "@/shared/api/auth.api";
 import { isApiErrorResponse } from "@/shared/types/api-error";
 import { secureStorage } from "@/shared/storage/secure-storage";
 import { useAuthStore } from "../store/auth.store";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { AuthStackParamList } from "@/app/navigation/types";
 
 type FormValues = {
   email: string;
@@ -43,6 +46,8 @@ export function RegisterScreen() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setLocalError] = useState<string | null>(null);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
   const onSubmit = async (values: RegisterFormValues) => {
     setSubmitting(true);
@@ -92,7 +97,7 @@ export function RegisterScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
       <Text style={styles.title}>Sign up</Text>
 
       <Controller
@@ -183,7 +188,11 @@ export function RegisterScreen() {
           <Text style={styles.buttonText}>Create account</Text>
         )}
       </Pressable>
-    </View>
+
+      <Pressable onPress={() => navigation.navigate("Login")}>
+        <Text style={styles.link}>Already have an account? Sign in</Text>
+      </Pressable>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -233,5 +242,10 @@ const styles = StyleSheet.create({
     color: "#d33",
     fontSize: 12,
     marginBottom: 8,
+  },
+  link: {
+    color: "#2563eb",
+    textAlign: "center",
+    marginTop: 16,
   },
 });
