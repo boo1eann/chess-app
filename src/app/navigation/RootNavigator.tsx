@@ -2,6 +2,7 @@ import { useAuthStore } from "@/features/auth/store/auth.store";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { AuthStack } from "./AuthStack";
 import { AppStack } from "./AppStack";
+import { SocketProvider } from "../providers/SocketProvider";
 
 export function RootNavigator() {
   const status = useAuthStore((s) => s.status);
@@ -15,7 +16,11 @@ export function RootNavigator() {
   }
 
   if (status === "authenticated") {
-    return <AppStack />;
+    return (
+      <SocketProvider>
+        <AppStack />
+      </SocketProvider>
+    );
   }
 
   return <AuthStack />;
