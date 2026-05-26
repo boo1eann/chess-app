@@ -8,6 +8,11 @@ export function HomeScreen() {
   const user = useAuthStore((s) => s.user);
   const { isConnected } = useSocket();
 
+  const handleFindGame = () => {
+    if (!isConnected) return;
+    alert("navigate to Searching Screen");
+  };
+
   const handleLogout = async () => {
     const refresh = await secureStorage.getRefreshToken();
     if (refresh) {
@@ -25,10 +30,12 @@ export function HomeScreen() {
         <View
           style={[styles.dot, isConnected ? styles.dotOn : styles.dotOff]}
         />
-        <Text style={styles.status}>
-          {isConnected ? "Connected" : "Disconnected"}
-        </Text>
+        <Text style={styles.status}>{isConnected ? "Online" : "Offline"}</Text>
       </View>
+
+      <Pressable onPress={handleFindGame} style={[styles.findButton]}>
+        <Text style={styles.findButtonText}>Find Game</Text>
+      </Pressable>
 
       <Pressable style={styles.button} onPress={handleLogout}>
         <Text style={styles.buttonText}>Logout</Text>
@@ -80,5 +87,17 @@ const styles = StyleSheet.create({
   status: {
     fontSize: 16,
     color: "#374151",
+  },
+  findButton: {
+    backgroundColor: "#2563eb",
+    paddingVertical: 18,
+    paddingHorizontal: 48,
+    borderRadius: 12,
+    marginBottom: 24,
+  },
+  findButtonText: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 20,
   },
 });
