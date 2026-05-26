@@ -7,12 +7,12 @@ import {
 import { createContext, ReactNode, useEffect, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 
+export type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
+
 interface SocketContextValue {
-  socket: Socket | null;
+  socket: AppSocket | null;
   isConnected: boolean;
 }
-
-export type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
 export const SocketContext = createContext<SocketContextValue | null>(null);
 
