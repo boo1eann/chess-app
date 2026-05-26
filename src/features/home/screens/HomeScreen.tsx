@@ -1,16 +1,21 @@
+import { AppStackParamList } from "@/app/navigation/types";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { authApi } from "@/shared/api/auth.api";
 import { useSocket } from "@/shared/socket/useSocket";
 import { secureStorage } from "@/shared/storage/secure-storage";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export function HomeScreen() {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const user = useAuthStore((s) => s.user);
   const { isConnected } = useSocket();
 
   const handleFindGame = () => {
     if (!isConnected) return;
-    alert("navigate to Searching Screen");
+    navigation.navigate("Searching");
   };
 
   const handleLogout = async () => {
