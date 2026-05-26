@@ -1,5 +1,9 @@
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { env } from "@/shared/config/env";
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from "@/shared/socket/socket-events";
 import { createContext, ReactNode, useEffect, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 
@@ -7,6 +11,8 @@ interface SocketContextValue {
   socket: Socket | null;
   isConnected: boolean;
 }
+
+export type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
 export const SocketContext = createContext<SocketContextValue | null>(null);
 
@@ -18,7 +24,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!accessToken) return;
 
-    const s = io(env.socketUrl, {
+    const s: AppSocket = io(env.socketUrl, {
       auth: { token: accessToken },
       transports: ["websocket"],
       reconnection: true,
