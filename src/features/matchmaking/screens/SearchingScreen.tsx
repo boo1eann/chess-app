@@ -8,12 +8,23 @@ import {
   Text,
   Pressable,
 } from "react-native";
+import { useMatchmaking } from "../hooks/useMatchmaking";
+import { useEffect } from "react";
 
 export function SearchingScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<AppStackParamList>>();
+  const { status, error, cancelQueue, clearError } = useMatchmaking();
+
+  useEffect(() => {
+    if (status === "idle" && error) {
+      navigation.goBack();
+    }
+  }, [status, error, navigation]);
 
   const handleCancel = () => {
+    cancelQueue();
+    clearError();
     navigation.goBack();
   };
 

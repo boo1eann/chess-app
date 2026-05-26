@@ -1,20 +1,32 @@
 import { AppStackParamList } from "@/app/navigation/types";
 import { useAuthStore } from "@/features/auth/store/auth.store";
+import { useMatchmaking } from "@/features/matchmaking/hooks/useMatchmaking";
 import { authApi } from "@/shared/api/auth.api";
 import { useSocket } from "@/shared/socket/useSocket";
 import { secureStorage } from "@/shared/storage/secure-storage";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect } from "react";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 
 export function HomeScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const user = useAuthStore((s) => s.user);
   const { isConnected } = useSocket();
+  const { joinQueue, status, error, clearError } = useMatchmaking();
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert("Matchmaking error", error, [
+        { text: "OK", onPress: clearError },
+      ]);
+    }
+  }, [error, clearError]);
 
   const handleFindGame = () => {
     if (!isConnected) return;
+    joinQueue();
     navigation.navigate("Searching");
   };
 
@@ -27,6 +39,8 @@ export function HomeScreen() {
     useAuthStore.getState().clearSession();
   };
 
+  const disabled = !isConnected || status !== "idle";
+
   return (
     <View style={styles.container}>
       <Text style={styles.greeting}>Hi, {user?.username}</Text>
@@ -38,7 +52,11 @@ export function HomeScreen() {
         <Text style={styles.status}>{isConnected ? "Online" : "Offline"}</Text>
       </View>
 
-      <Pressable onPress={handleFindGame} style={[styles.findButton]}>
+      <Pressable
+        onPress={handleFindGame}
+        style={[styles.findButton, disabled && styles.disabled]}
+        disabled={disabled}
+      >
         <Text style={styles.findButtonText}>Find Game</Text>
       </Pressable>
 
@@ -105,4 +123,5 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 20,
   },
+  disabled: { opacity: 0.5 },
 });
